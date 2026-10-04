@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Oumaima Boukhalfa — Data Analytics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --noir: #0b0b0c;
+    --noir-2: #141416;
+    --noir-3: #1b1b1e;
+    --blanc: #f6f3ee;
+    --blanc-2: #ffffff;
+    --texte: #cfcac2;
+    --gris: #8d8880;
+    --gris-fonce: #4d4a45;
+    --bordeaux: #7a1128;
+    --bordeaux-clair: #b23a4e;
+    --bordeaux-vif: #9c1f34;
+    --serif: 'Fraunces', Georgia, 'Times New Roman', serif;
+    --sans: 'Space Grotesk', 'Helvetica Neue', Arial, sans-serif;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--noir);
+    color:var(--blanc);
+    font-family:var(--sans);
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--bordeaux); color:var(--blanc-2); }
+  a{ color:inherit; text-decoration:none; }
+  :focus-visible{ outline:2px solid var(--bordeaux-clair); outline-offset:3px; }
+
+  /* ---------- curseur ---------- */
+  #cursor-dot{
+    position:fixed; top:0; left:0; width:10px; height:10px; border-radius:50%;
+    background:var(--bordeaux-clair); pointer-events:none; z-index:999;
+    transform:translate(-50%,-50%); mix-blend-mode:difference;
+    transition:width .25s ease, height .25s ease, background .25s ease;
+  }
+  #cursor-ring{
+    position:fixed; top:0; left:0; width:34px; height:34px; border-radius:50%;
+    border:1px solid var(--bordeaux-clair); pointer-events:none; z-index:998;
+    transform:translate(-50%,-50%); transition: width .3s ease, height .3s ease, background .3s ease;
+  }
+  /* le curseur grossit sur tout ce qui est cliquable */
+  body.cursor-hover #cursor-ring{ width:60px; height:60px; background:rgba(178,58,78,.14); }
+  body.cursor-hover #cursor-dot{ width:6px; height:6px; }
+  @media (pointer:coarse){ #cursor-dot, #cursor-ring{ display:none; } }
+
+  /* ---------- structure ---------- */
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 6vw; }
+  section{ position:relative; padding:120px 0; }
+  @media (max-width:760px){ section{ padding:80px 0; } .wrap{ padding:0 7vw; } }
+
+  .eyebrow-label{ font-family:var(--sans); font-size:13px; letter-spacing:.04em; color:var(--bordeaux-clair); }
+  .sub-label{ font-family:var(--sans); font-size:13px; letter-spacing:.04em; color:var(--gris); font-weight:500; margin:0 0 16px 0; }
+
+  /* ---------- navigation latérale ---------- */
+  #sidenav{
+    position:fixed; top:0; left:0; height:100vh; width:88px;
+    display:flex; flex-direction:column; align-items:center; justify-content:space-between;
+    padding:36px 0; z-index:50;
+  }
+  #sidenav .dots{ display:flex; flex-direction:column; gap:22px; }
+  .navdot{
+    width:9px; height:9px; border-radius:50%; background:transparent; border:1px solid var(--gris-fonce);
+    cursor:pointer; transition:all .4s cubic-bezier(.2,.8,.2,1); position:relative;
+  }
+  .navdot.active{ background:var(--bordeaux-clair); border-color:var(--bordeaux-clair); transform:scale(1.5); }
+  .navdot .navlabel{
+    position:absolute; left:20px; top:50%; transform:translateY(-50%) translateX(-6px);
+    white-space:nowrap; font-size:11px; letter-spacing:.06em; color:var(--gris);
+    opacity:0; transition:opacity .3s ease, transform .3s ease; pointer-events:none;
+  }
+  .navdot:hover .navlabel, .navdot:focus-visible .navlabel{ opacity:1; transform:translateY(-50%) translateX(0); }
+  #sidenav .scrollline{ width:1px; height:70px; background:linear-gradient(var(--gris-fonce), transparent); }
+  @media (max-width:900px){ #sidenav{ display:none; } }
+
+  .content-shift{ margin-left:88px; }
+  @media (max-width:900px){ .content-shift{ margin-left:0; } }
+
+  /* ---------- apparition au scroll ---------- */
+  .reveal{ opacity:0; transform:translateY(28px); transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
+  .reveal.in{ opacity:1; transform:none; }
+  .reveal-delay-1.in{ transition-delay:.08s; }
+  .reveal-delay-2.in{ transition-delay:.16s; }
+  .reveal-delay-3.in{ transition-delay:.24s; }
+  .reveal-delay-4.in{ transition-delay:.32s; }
+
+  /* ---------- hero ---------- */
+  #hero{ font-style:italic; display:flex; flex-direction:column; justify-content:center; padding-top:80px; padding-bottom:40px; }
+  .hero-grid{ display:grid; grid-template-columns:1.5fr 1fr; gap:20px; align-items:end; }
+  @media (max-width:1400px){ .hero-grid{ grid-template-columns:1fr; } }
+  .hero-name{ font-family:var(--serif); line-height:.48; font-size:clamp(36px, 9vw, 56px); margin:14px 0 0 0; letter-spacing:-.01em; }
+  .hero-name .line{ overflow:hidden; display:block; }
+  .hero-name .line span{ display:inline-block; transform:translateY(110%); animation:riseUp .9s cubic-bezier(.2,.8,.2,1) forwards; }
+  @keyframes riseUp{ to{ transform:translateY(0); } }
+  .hero-function{
+    font-family:var(--serif); font-style:italic; color:var(--bordeaux-clair); font-weight:400;
+    font-size:clamp(30px, 5vw, 66px); line-height:1.05; letter-spacing:-.01em; display:block;
+  }
+  .hero-sub{ font-size:16px; color:var(--texte); max-width:64ch; line-height:1.65; margin-top:26px; font-style:normal; }
+  .hero-meta{ display:flex; flex-wrap:wrap; gap:10px 26px; margin-top:30px; margin-bottom:12px; font-size:13px; font-style:normal; }
+  .hero-meta a{ border-bottom:1px solid var(--gris-fonce); padding-bottom:2px; transition:color .3s ease, border-color .3s ease; }
+  .hero-meta a:hover{ color:var(--bordeaux-clair); border-color:var(--bordeaux-clair); }
+  .hero-meta span{ color:var(--gris); }
+
+  /* ---------- bandeau défilant ---------- */
+  .marquee-band{ background:var(--bordeaux); transform:rotate(-1.2deg); margin:0 -8vw; padding:16px 0; overflow:hidden; white-space:nowrap; }
+  .marquee-track{ display:inline-flex; animation:marquee 26s linear infinite; }
+  .marquee-track span{
+    font-family:var(--serif); font-style:italic; font-size:22px; color:var(--blanc-2);
+    padding:0 28px; display:inline-flex; align-items:center; gap:28px;
+  }
+  .marquee-track span::after{ content:'✦'; font-style:normal; font-size:13px; color:rgba(255,255,255,.55); }
+  @keyframes marquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+
+  /* ---------- titres de section ---------- */
+  .sec-head{ display:flex; align-items:baseline; gap:18px; margin-bottom:48px; }
+  .sec-num{ font-family:var(--serif); font-style:italic; color:var(--bordeaux-clair); font-size:15px; }
+  .sec-title{ font-family:var(--serif); font-weight:400; font-size:clamp(30px,4vw,46px); margin:0; }
+  .sec-rule{ flex:1; height:1px; background:var(--gris-fonce); margin-left:8px; }
+
+  /* ---------- profil ---------- */
+  .profil-grid{ display:grid; grid-template-columns:230px 1fr; gap:72px; align-items:start; }
+  @media (max-width:860px){ .profil-grid{ grid-template-columns:1fr; gap:44px; } }
+
+  .photo-col{ display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px; position:sticky; top:48px; }
+  @media (max-width:860px){ .photo-col{ position:static; } }
+  .photo-frame{ position:relative; width:200px; height:200px; border-radius:50%; flex:none; }
+  .photo-frame::before{
+    content:''; position:absolute; inset:-6px; border-radius:50%;
+    background:conic-gradient(from 0deg, var(--bordeaux), transparent 30%, var(--bordeaux-clair), transparent 70%, var(--bordeaux));
+    animation:spinRing 7s linear infinite;
+  }
+  @keyframes spinRing{ to{ transform:rotate(360deg); } }
+  .photo-inner{
+    position:absolute; inset:6px; border-radius:50%; overflow:hidden;
+    background:linear-gradient(160deg, var(--noir-2), var(--noir));
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--serif); font-style:italic; font-size:52px; color:var(--bordeaux-clair);
+  }
+  .photo-inner img{ width:100%; height:100%; object-fit:cover; object-position:center 30%; display:block; image-rendering:auto; }
+  .photo-name{ font-family:var(--serif); font-size:22px; margin-top:6px; }
+  .photo-loc{ font-size:13px; color:var(--gris); margin-top:4px; }
+  .dispo{
+    display:inline-flex; align-items:center; gap:9px; font-size:12.5px; color:var(--blanc);
+    border:1px solid var(--bordeaux); background:rgba(122,17,40,.18); padding:8px 14px; border-radius:999px;
+  }
+  .dispo i{ width:7px; height:7px; border-radius:50%; background:var(--bordeaux-clair); box-shadow:0 0 0 0 rgba(178,58,78,.6); animation:pulse 2.2s ease-out infinite; }
+  .badges{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .dispo.static i{ animation:none; background:var(--blanc); opacity:.7; }
+  @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(178,58,78,.6); } 70%{ box-shadow:0 0 0 9px rgba(178,58,78,0); } 100%{ box-shadow:0 0 0 0 rgba(178,58,78,0); } }
+
+  .profil-main .lede{
+    font-family:var(--serif); font-size:clamp(18px,1.8vw,22px); line-height:1.45; font-weight:400;
+    margin:0 0 24px 0; padding-left:20px; border-left:2px solid var(--bordeaux-clair); max-width:40ch;
+  }
+  .profil-hello{ font-family:var(--serif); font-size:clamp(28px,3.2vw,40px); line-height:1.15; font-weight:400; margin:0 0 20px 0; }
+  .profil-hello em{ font-style:italic; color:var(--bordeaux-clair); }
+  .profil-text{ font-size:14px; line-height:1.8; color:var(--texte); max-width:66ch; margin:0 0 16px 0; }
+  .profil-text:last-child{ margin-bottom:36px; }
+  .profil-text strong{ color:var(--blanc); font-weight:500; }
+  .qualites-list{ list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(2,1fr); gap:12px 28px; }
+  @media (max-width:520px){ .qualites-list{ grid-template-columns:1fr; } }
+  .qualites-list li{
+    font-size:14px; color:var(--blanc); border-left:2px solid var(--bordeaux); padding:3px 0 3px 12px;
+    transform:translateX(-8px); opacity:0; transition:all .5s ease;
+  }
+  .qualites-list li.in{ transform:translateX(0); opacity:1; }
+
+  /* ---------- expérience ---------- */
+  .timeline{ position:relative; }
+  .timeline::before{ content:''; position:absolute; left:9px; top:6px; bottom:6px; width:1px; background:var(--gris-fonce); }
+  .timeline-fill{ position:absolute; left:9px; top:6px; width:1px; background:var(--bordeaux-clair); height:0%; transition:height .3s linear; }
+  .tl-item{ position:relative; padding-left:46px; margin-bottom:64px; }
+  .tl-item:last-child{ margin-bottom:0; }
+  .tl-dot{ position:absolute; left:2px; top:6px; width:17px; height:17px; border-radius:50%; background:var(--noir); border:1px solid var(--gris-fonce); transition:all .5s ease; }
+  .tl-item.in .tl-dot{ border-color:var(--bordeaux-clair); background:var(--bordeaux); box-shadow:0 0 0 4px rgba(122,17,40,.25); }
+  .tl-date{ font-size:12px; letter-spacing:.05em; color:var(--bordeaux-clair); }
+  .tl-role{ font-family:var(--serif); font-size:24px; font-weight:400; margin:6px 0 2px 0; }
+  .tl-org{ color:var(--gris); font-size:14px; margin-bottom:16px; }
+  .tl-item ul{ margin:0; padding:0; list-style:none; display:grid; gap:10px; max-width:60ch; }
+  .tl-item ul li{ font-size:14.5px; color:var(--texte); line-height:1.6; padding-left:18px; position:relative; }
+  .tl-item ul li::before{ content:'—'; position:absolute; left:0; color:var(--gris-fonce); }
+
+  /* ---------- boutons « plus d'infos » (partagés) ---------- */
+  .more-btn{
+    display:inline-flex; align-items:center; gap:10px; cursor:pointer;
+    font-family:var(--sans); font-size:13px; color:var(--blanc);
+    background:transparent; border:1px solid var(--bordeaux-clair); padding:10px 16px 10px 12px;
+    transition:background .3s ease, border-color .3s ease;
+  }
+  .more-btn:hover{ background:var(--bordeaux); border-color:var(--bordeaux); }
+  .more-ico{
+    width:20px; height:20px; border-radius:50%; flex:none;
+    display:inline-flex; align-items:center; justify-content:center;
+    background:var(--bordeaux-clair); color:var(--blanc-2); font-size:14px; line-height:1;
+    transition:transform .4s cubic-bezier(.2,.7,.2,1);
+  }
+  .is-open .more-ico{ transform:rotate(45deg); }
+  .ext-link{
+    display:inline-flex; align-items:center; gap:8px; font-size:13px; color:var(--bordeaux-clair);
+    border-bottom:1px solid var(--bordeaux-clair); padding-bottom:2px;
+  }
+  .ext-link svg{ transition:transform .3s ease; }
+  .ext-link:hover svg{ transform:translate(2px,-2px); }
+
+  /* ---------- projets ---------- */
+  .proj-intro{ color:var(--gris); font-size:15px; max-width:60ch; margin:-24px 0 40px 0; line-height:1.6; }
+  .proj-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:28px; }
+  @media (max-width:860px){ .proj-grid{ grid-template-columns:1fr; } }
+  .proj-card{
+    border:1px solid var(--gris-fonce); background:var(--noir-2);
+    display:flex; flex-direction:column; overflow:hidden;
+    transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .5s cubic-bezier(.2,.7,.2,1), border-color .4s ease;
+  }
+  .proj-card.reveal.in:hover{ border-color:var(--bordeaux-clair); transform:translateY(-6px); }
+  .proj-media{
+    position:relative; aspect-ratio:16/10; overflow:hidden; border-bottom:1px solid var(--gris-fonce);
+    background:radial-gradient(ellipse at 50% 0%, rgba(122,17,40,.35), transparent 70%), var(--noir-3);
+    display:flex; align-items:center; justify-content:center; padding:22px;
+  }
+  .proj-media.fit-cover{ padding:0; }
+  .proj-media.light{ background:#ffffff; padding:10px; }
+  .proj-media.light img{ filter:none; }
+  .proj-media img{
+    width:100%; height:100%; object-fit:contain; display:block;
+    filter:drop-shadow(0 12px 28px rgba(0,0,0,.55)); transition:transform .9s cubic-bezier(.2,.7,.2,1);
+  }
+  .proj-media.fit-cover img{ object-fit:cover; object-position:top center; filter:none; }
+  .proj-card:hover .proj-media img{ transform:scale(1.02); }
+  .proj-placeholder{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(122,17,40,.45), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 32px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 32px),
+      var(--noir-3);
+  }
+  .ph-mono{ font-family:var(--serif); font-style:italic; font-size:64px; color:var(--bordeaux-clair); line-height:1; }
+  .ph-note{ font-size:12px; color:var(--gris); }
+  .proj-badge{
+    position:absolute; top:14px; left:14px; font-size:12px; color:var(--blanc);
+    background:rgba(11,11,12,.78); border:1px solid var(--gris-fonce); padding:6px 11px;
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+  }
+  .proj-body{ padding:26px 26px 28px; display:flex; flex-direction:column; gap:14px; flex:1; }
+  .proj-meta{ font-size:12.5px; color:var(--bordeaux-clair); }
+  .proj-body h3{ font-family:var(--serif); font-weight:400; font-size:24px; line-height:1.2; margin:0; }
+  .proj-desc{ font-size:14.5px; line-height:1.7; color:var(--texte); margin:0; max-width:62ch; }
+  .proj-tags{ display:flex; flex-wrap:wrap; gap:8px; }
+  .proj-tags span{ font-size:12px; color:var(--gris); border:1px solid var(--gris-fonce); padding:5px 10px; }
+  .proj-details{ max-height:0; overflow:hidden; opacity:0; transition:max-height .55s cubic-bezier(.2,.7,.2,1), opacity .4s ease; }
+  .proj-details.open{ max-height:420px; opacity:1; }
+  .proj-details ul{ list-style:none; margin:0; padding:16px 0 4px; border-top:1px solid var(--gris-fonce); display:grid; gap:9px; }
+  .proj-details li{ font-size:13.5px; color:var(--texte); line-height:1.6; padding-left:18px; position:relative; }
+  .proj-details li::before{ content:'—'; position:absolute; left:0; color:var(--bordeaux-clair); }
+  .proj-actions{ margin-top:auto; padding-top:6px; display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+
+  /* projet mis en avant : pleine largeur, image à gauche */
+  .proj-card.featured{ grid-column:1 / -1; }
+  @media (min-width:1000px){
+    .proj-card.featured{ display:grid; grid-template-columns:1.35fr 1fr; }
+    .proj-card.featured .proj-media{ aspect-ratio:auto; min-height:420px; padding:30px; border-bottom:none; border-right:1px solid var(--gris-fonce); }
+    .proj-card.featured .proj-body{ padding:36px; justify-content:center; }
+    .proj-card.featured h3{ font-size:28px; }
+  }
+
+  /* ---------- formation ---------- */
+  .formation-grid{ display:grid; grid-template-columns:1fr 1fr; gap:28px; align-items:start; }
+  @media (max-width:760px){ .formation-grid{ grid-template-columns:1fr; } }
+  .formation-card{
+    border:1px solid var(--gris-fonce); padding:30px; cursor:pointer; text-align:left;
+    background:var(--noir-2); color:inherit; font-family:inherit; position:relative;
+    transition:opacity .9s cubic-bezier(.2,.7,.2,1), transform .5s cubic-bezier(.2,.7,.2,1), border-color .4s ease, background .4s ease;
+  }
+  .formation-card.reveal.in:hover{ border-color:var(--bordeaux-clair); transform:translateY(-6px); }
+  .formation-card.is-open{ border-color:var(--bordeaux-clair); }
+  .formation-card .fc-date{ font-size:12px; color:var(--bordeaux-clair); }
+  .formation-card h3{ font-family:var(--serif); font-weight:400; font-size:21px; line-height:1.3; margin:10px 0 6px; }
+  .formation-card .fc-school{ color:var(--gris); font-size:14px; margin:0; }
+  .fc-details{ max-height:0; overflow:hidden; opacity:0; transition:max-height .5s cubic-bezier(.2,.7,.2,1), opacity .4s ease, margin-top .4s ease; margin-top:0; }
+  .formation-card.is-open .fc-details{ max-height:260px; opacity:1; margin-top:20px; }
+  .fc-details-inner{ border-top:1px solid var(--gris-fonce); padding-top:16px; }
+  .fc-details-inner p{ color:var(--texte); font-size:13.5px; line-height:1.7; margin:0 0 14px 0; }
+  .fc-cta{ margin-top:22px; display:flex; align-items:center; gap:10px; font-size:13px; color:var(--blanc); }
+  .fc-cta .fc-cta-text{ border-bottom:1px solid var(--bordeaux-clair); padding-bottom:2px; }
+  .formation-card:hover .fc-cta .fc-cta-text{ color:var(--bordeaux-clair); }
+
+  .certs{ margin-top:48px; display:grid; gap:10px; }
+  .cert-row{ display:flex; gap:12px; font-size:14px; color:var(--texte); align-items:flex-start; line-height:1.6; }
+  .cert-row .dash{ color:var(--bordeaux-clair); }
+
+  /* ---------- compétences ---------- */
+  .domain-row{ display:flex; flex-wrap:wrap; gap:10px; margin:0 0 56px 0; }
+  .domain-chip{ font-size:13.5px; padding:9px 15px; border-radius:999px; background:var(--bordeaux); border:1px solid var(--bordeaux); color:var(--blanc-2); }
+
+  .tools-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  @media (max-width:980px){ .tools-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:620px){ .tools-grid{ grid-template-columns:1fr; } }
+  .tool-card{ background:var(--noir-2); border:1px solid var(--gris-fonce); padding:24px; display:flex; flex-direction:column; gap:18px; }
+  .tool-card.highlight{ border-color:var(--bordeaux-clair); background:linear-gradient(160deg, rgba(122,17,40,.28), var(--noir-2) 70%); }
+  .tool-card.highlight .tool-ico{ background:var(--bordeaux); color:var(--blanc-2); }
+  .tool-head{ display:flex; align-items:center; gap:14px; }
+  .tool-ico{
+    width:40px; height:40px; flex:none; display:flex; align-items:center; justify-content:center;
+    background:rgba(122,17,40,.25); border:1px solid var(--bordeaux); color:var(--bordeaux-clair);
+  }
+  .tool-head h5{ font-family:var(--serif); font-weight:400; font-size:18px; margin:0; line-height:1.25; }
+  .tool-head p{ font-size:12.5px; color:var(--gris); margin:3px 0 0; }
+  .tag-row{ display:flex; flex-wrap:wrap; gap:8px; }
+  .tag{
+    border:1px solid var(--gris-fonce); padding:7px 12px; font-size:13px; color:var(--blanc);
+    opacity:0; transform:translateY(8px); transition:opacity .5s ease, transform .5s ease;
+    cursor:default;
+  }
+  .tag.in{ opacity:1; transform:translateY(0); }
+
+  /* ---------- langues ---------- */
+  .langues-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  @media (max-width:700px){ .langues-grid{ grid-template-columns:repeat(2,1fr); } }
+  .langue-item{ padding:22px 0; border-top:1px solid var(--gris-fonce); }
+  .langue-item .lg-name{ font-family:var(--serif); font-size:22px; }
+  .langue-item .lg-level{ font-size:12px; color:var(--bordeaux-clair); margin-top:4px; }
+  .langue-item .lg-bar{ height:2px; background:var(--gris-fonce); margin-top:14px; overflow:hidden; }
+  .langue-item .lg-bar > i{ display:block; height:100%; background:var(--bordeaux-clair); width:0%; transition:width 1.1s cubic-bezier(.2,.7,.2,1); }
+  .langue-item.in .lg-bar > i{ width:var(--w); }
+
+  /* ---------- témoignages ---------- */
+  .test-band{ overflow:hidden; padding:10px 0 30px; position:relative; }
+  .test-band::before, .test-band::after{ content:''; position:absolute; top:0; bottom:0; width:80px; z-index:2; pointer-events:none; }
+  .test-band::before{ left:0; background:linear-gradient(90deg, var(--noir), transparent); }
+  .test-band::after{ right:0; background:linear-gradient(-90deg, var(--noir), transparent); }
+  .test-track{ display:flex; gap:24px; width:max-content; animation:testScroll 34s linear infinite; padding:0 6vw; }
+  .test-track:hover{ animation-play-state:paused; }
+  @keyframes testScroll{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+  .test-card{ flex:none; width:320px; border:1px solid var(--gris-fonce); padding:26px; background:var(--noir-2); display:flex; flex-direction:column; gap:18px; }
+  .test-quote{ font-family:var(--serif); font-style:italic; font-size:16.5px; line-height:1.55; color:#e9e5df; margin:0; }
+  .test-quote::before{ content:'\201C'; color:var(--bordeaux-clair); font-size:26px; margin-right:2px; }
+  .test-who{ display:flex; align-items:center; gap:12px; margin-top:auto; }
+  .test-avatar{ width:38px; height:38px; border-radius:50%; background:var(--bordeaux); color:var(--blanc-2); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:600; flex:none; }
+  .test-name{ font-size:13.5px; color:var(--blanc); }
+  .test-role{ font-size:12px; color:var(--gris); }
+
+  /* ---------- contact ---------- */
+  .contact-title{ font-family:var(--serif); font-size:clamp(40px,7vw,92px); line-height:1.02; font-weight:400; margin:0; }
+  .contact-title .amp{ color:var(--bordeaux-clair); font-style:italic; }
+  .contact-links{ display:flex; flex-wrap:wrap; gap:30px 46px; margin-top:44px; }
+  .contact-link{ font-size:15px; padding-bottom:4px; border-bottom:1px solid var(--gris-fonce); position:relative; overflow:hidden; }
+  .contact-link .under{ position:absolute; left:0; bottom:-1px; height:1px; width:0%; background:var(--bordeaux-clair); transition:width .4s ease; }
+  .contact-link:hover .under{ width:100%; }
+  footer{ margin-top:120px; padding:28px 0; border-top:1px solid var(--gris-fonce); display:flex; justify-content:space-between; font-size:12px; color:var(--gris-fonce); flex-wrap:wrap; gap:10px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .reveal, .tag, .qualites-list li, .proj-card, .formation-card{ transition:none !important; }
+    .hero-name .line span{ animation:none !important; transform:translateY(0) !important; }
+    .marquee-track{ animation-duration:70s; }
+    .test-track{ animation-duration:90s; }
+    .photo-frame::before, .dispo i{ animation:none; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+
+<script type="text/babel" data-presets="react">
+const {useState, useEffect, useRef, useCallback} = React;
+
+/* =========================================================
+   DONNÉES — c'est ici que vous modifiez le contenu
+   ========================================================= */
+
+// Vérifiez ce lien : l'ancienne version contenait deux adresses LinkedIn différentes
+const LINKEDIN = 'https://www.linkedin.com/in/oumaima-boukhalfa-59b78930a';
+const EMAIL = 'boukhalfaoumaima@outlook.fr';
+const TEL_AFFICHE = '+33 7 51 19 39 04';
+const TEL_LIEN = '+33751193904';
+
+const NAV = [
+  {id:'hero', label:'Intro'},
+  {id:'profil', label:'Profil'},
+  {id:'experience', label:'Expérience'},
+  {id:'projets', label:'Projets'},
+  {id:'formation', label:'Formation'},
+  {id:'competences', label:'Compétences'},
+  {id:'langues', label:'Langues'},
+  {id:'temoignages', label:'Témoignages'},
+  {id:'contact', label:'Contact'},
+];
+
+const QUALITES = ['Écoute active','Esprit analytique & résolution de problèmes','Autonomie & capacité d’adaptation','Rigueur','Gestion du stress','Communication & travail d’équipe'];
+
+const EXPERIENCES = [
+  {
+    date:'Déc. 2025 — Mai 2026',
+    role:'Projet long — Détection des injections SQL à l’aide des automates',
+    org:'Université Paris Cité, Paris — Projet académique de Master 1',
+    bullets:[
+      'Projet encadré par des enseignants-chercheurs, portant sur la conception et le développement en Python d’une plateforme d’analyse permettant d’identifier les requêtes SQL potentiellement malveillantes.',
+      'Travail fondé sur la reproduction et l’adaptation d’une approche proposée dans un article de recherche publié en 2020.'
+    ]
+  },
+  {
+    date:'Sept. 2024 — Juil. 2025',
+    role:'Stage de fin d’études (PFE)',
+    org:'KUR INSAAT, Alger — Conception d’un système de gestion des ressources de l’entreprise',
+    bullets:[
+      'Collecte, analyse et nettoyage des données dispersées issues des systèmes d’approvisionnement, de gestion des stocks et de suivi des projets.',
+      'Collaboration avec les équipes métiers pour identifier les besoins en données et adapter les rapports BI.',
+      'Création et implémentation de tableaux de bord dynamiques pour le pilotage des processus achats, inventaire et gestion de projet.',
+      'Déploiement de solutions analytiques dans un environnement conteneurisé Docker pour la maintenance et la scalabilité.',
+      'Automatisation de l’intégration de données externes via API REST pour garantir la cohérence et la fraîcheur des informations.'
+    ]
+  },
+  {
+    date:'Juil. 2023 — Sept. 2023',
+    role:'Stage d’immersion professionnelle (SPE)',
+    org:'KUR INSAAT, Alger — Extension HMUSORA, Bouchaoui : maintenance préventive et curative des dispositifs médicaux',
+    bullets:[
+      'Nettoyage et structuration de données d’équipements médicaux et techniques, réparties initialement dans des fichiers Excel hétérogènes.',
+      'Migration et intégration des données dans une base de données SQL (MySQL) depuis Access.',
+      'Conception de dashboards BI pour le suivi des équipements et l’aide à la décision en matière de maintenance.',
+      'Développement de fonctionnalités de gestion des utilisateurs et de visualisation des locaux et équipements associés.'
+    ]
+  },
+  {
+    date:'Juil. 2023',
+    role:'Stage',
+    org:'Société des Ciments d’Aïn Touta (SCIMAT), Batna',
+    bullets:['Analyse et supervision des processus de production.']
+  }
+];
+
+/* PROJETS
+   - image : chemin vers la capture d'écran (placez vos images dans un dossier "projets/").
+     Tant que l'image n'existe pas, une vignette de remplacement s'affiche.
+   - link : lien vers le projet (GitHub, démo…). Mettez null s'il n'y en a pas.
+   - featured : true pour afficher le projet en grand, sur toute la largeur.
+   - light : true pour une image sur fond blanc (le cadre devient blanc lui aussi).
+   - fit : par défaut l'image est affichée en entier, sans être coupée.
+           Ajoutez fit:'cover' pour qu'elle remplisse tout le cadre (les bords peuvent être rognés). */
+const PROJETS = [
+  {
+    title:'Détection des injections SQL à l’aide des automates',
+    badge:'Projet académique',
+    context:'Projet long de Master 1, Université Paris Cité',
+    date:'Déc. 2025 — Mai 2026',
+    image:'projets/Detector.png',
+    desc:'Plateforme d’analyse développée en Python qui repère les requêtes SQL potentiellement malveillantes grâce à une approche fondée sur les automates.',
+    tags:['Python','Automates','SQL','Cybersécurité'],
+    link:null,
+    featured:true
+  },
+  {
+    title:'Nouveau système de communication de l’ESI',
+    badge:'Projet académique',
+    context:'École nationale supérieure d’informatique (ESI), Alger',
+    date:'Janv. — Mai 2024',
+    image:'projets/ESI.png',
+    light:true,
+    desc:'Refonte du site web de l’école pour refléter son statut d’école d’excellence et rendre l’information plus accessible aux étudiants, aux enseignants et au personnel administratif.',
+    tags:['Next.js','Strapi','CMS headless'],
+    link:null
+  },
+  {
+    title:'Beyt, plateforme immobilière en Algérie',
+    badge:'Projet académique',
+    context:'École nationale supérieure d’informatique (ESI), Alger',
+    date:'Oct. 2022 — Janv. 2023',
+    image:'projets/BEYT.png',
+    light:true,
+    desc:'Plateforme web et mobile de petites annonces immobilières pour vendre, échanger, louer ou réserver un bien pour les vacances.',
+    tags:['Python','Django','React'],
+    link:null
+  },
+  {
+    title:'Application de gestion des équipements médicaux',
+    badge:'Stage d’immersion',
+    context:'KUR INSAAT, extension HMUSORA, Bouchaoui',
+    date:'Juil. — Sept. 2023',
+    image:'projets/HMUSORA.png',
+    desc:'Application de suivi de la maintenance préventive et curative des équipements médicaux de l’extension HMUSORA, appuyée sur une base MySQL et des tableaux de bord d’aide à la décision.',
+    tags:['MySQL','Migration de données','Dashboards BI','Gestion des utilisateurs'],
+    link:null,
+    featured:true
+  },
+];
+
+const FORMATIONS = [
+  {
+    date:'Sept. 2025 — Aujourd’hui',
+    title:'Master Informatique, parcours Données : Algorithmes, Traitement et Analyse',
+    school:'Université Paris Cité, Paris 13e',
+    details:'Formation axée sur les algorithmes, le traitement et l’analyse de données à grande échelle, au sein d’une des principales universités pluridisciplinaires françaises.',
+    link:'https://odf.u-paris.fr/fr/offre-de-formation/master-XB/sciences-technologies-sante-STS/informatique-fondamentale-et-appliquee-K875KEVO/master-informatique-parcours-donnees-algorithmes-traitement-et-analyse-JS1V66EH.html'
+  },
+  {
+    date:'Sept. 2020 — Juil. 2025',
+    title:'Diplôme d’Ingénieur d’État en Informatique & Master 2 en Systèmes d’Information',
+    school:'École Nationale Supérieure d’Informatique (ESI), Alger',
+    details:'Cursus d’ingénieur d’État en informatique complété d’un Master 2 en Systèmes d’Information, avec de solides bases en informatique.',
+    link:'https://www.esi.dz'
+  },
+];
+
+const CERTS = [
+  'Certification en Leadership — INJAZ',
+  'Attestation de participation — loi 18-07 relative à la protection des données à caractère personnel et son application en entreprise / IT',
+];
+
+const DOMAINES = [
+  {t:'Statistiques & machine learning', key:true},
+  {t:'Analyse de données & Business Intelligence', key:true},
+  {t:'Ingénierie & qualité des données', key:true},
+  {t:'Architecture des bases de données'},
+  {t:'Aide à la décision'},
+  {t:'Architecture SI'},
+  {t:'Développement logiciel'},
+  {t:'Intégration des ERP'},
+  {t:'Gestion de projet'},
+  {t:'Consulting IT'},
+];
+
+/* highlight:true = carte mise en avant */
+const OUTILS = [
+  {cat:'Statistiques & machine learning', desc:'Modéliser et prédire', icon:'ml', highlight:true, items:['Statistiques','Machine learning','Classification','Régression','Évaluation de modèles']},
+  {cat:'Data & Business Intelligence', desc:'Préparer, visualiser, piloter', icon:'chart', items:['Power BI','Pentaho (ETL)','Excel avancé (TCD)']},
+  {cat:'Bases de données & données liées', desc:'Modéliser, requêter, migrer', icon:'db', items:['SQL','MySQL','PostgreSQL','RDF','SPARQL']},
+  {cat:'Programmation & web', desc:'Analyser, automatiser, développer', icon:'code', items:['Python','R','Java','C / C++','HTML / CSS','ReactJS','NodeJS']},
+  {cat:'Systèmes & intégration', desc:'Déployer et connecter', icon:'stack', items:['Odoo ERP','API REST','Docker','Git']},
+  {cat:'Gestion de projet & bureautique', desc:'Organiser et communiquer', icon:'check', items:['ClickUp','Notion','MS Project','Word','Excel','PowerPoint','Figma','LaTeX']},
+];
+
+const LANGUES = [
+  {name:'Arabe', level:'Langue maternelle', w:'100%'},
+  {name:'Français', level:'Courant', w:'90%'},
+  {name:'Anglais', level:'Courant', w:'90%'},
+  {name:'Italien', level:'A1', w:'20%'},
+];
+
+const TEMOIGNAGES = [
+  {name:'Pr. CHALAL Rachid', role:'Enseignant-chercheur, directeur de recherche au LMCS / ESI', quote:'Mlle BOUKHALFA est particulièrement dynamique, dotée d’excellentes compétences dans son domaine, et sait travailler efficacement en équipe tout en étant autonome lorsqu’il le faut. Je suis convaincu qu’elle saura s’intégrer facilement et exceller.'},
+  {name:'SELLAMI Kawthar', role:'Business Development Manager (responsable de stage)', quote:'Vous avez un esprit analytique exceptionnel, je suis fière de vous et de votre réussite.'},
+  {name:'Melissa Benchelli', role:'Binôme de stage', quote:'J’ai eu la chance de le faire en binôme avec Oumaima BOUKHALFA. Et je le dis avec émotion : on s’est portées mutuellement pendant toute l’année. Il y a eu des moments où on doutait, où on se disait que notre projet n’était pas consistant, qu’on n’y arriverait jamais. Mais on s’est accrochées. L’une à l’autre. Et on a continué. Un vrai binôme. Merci Oumaima.'},
+  {name:'Aberkane Nadjib', role:'Chef de projet extension HMUSORA', quote:'Tu as un futur brillant ! Je serai là pour te soutenir tout au long de ton parcours professionnel.'},
+];
+
+/* =========================================================
+   OUTILS
+   ========================================================= */
+function useReveal(){
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+  useEffect(()=>{
+    const el = ref.current;
+    if(!el) return;
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting){ setInView(true); obs.unobserve(e.target); } });
+    }, {threshold:0.15});
+    obs.observe(el);
+    return ()=>obs.disconnect();
+  },[]);
+  return [ref, inView];
+}
+
+function Reveal({children, className='', delay=0, as='div', ...rest}){
+  const [ref,inView] = useReveal();
+  const Tag = as;
+  const delayClass = delay ? `reveal-delay-${delay}` : '';
+  return <Tag ref={ref} className={`reveal ${delayClass} ${inView?'in':''} ${className}`} {...rest}>{children}</Tag>;
+}
+
+function SecHead({num, title}){
+  return (
+    <Reveal className="sec-head">
+      <span className="sec-num">{num}</span>
+      <h2 className="sec-title">{title}</h2>
+      <span className="sec-rule"></span>
+    </Reveal>
+  );
+}
+
+function ExternalIcon(){
+  return <svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true"><path d="M3 9L9 3M4 3h5v5"/></svg>;
+}
+
+/* ---------- curseur ---------- */
+function Cursor(){
+  const dotRef = useRef(null);
+  const ringRef = useRef(null);
+  useEffect(()=>{
+    if(window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return;
+    let ringX=0, ringY=0, mx=0, my=0;
+    const move = e=>{
+      mx=e.clientX; my=e.clientY;
+      if(dotRef.current){ dotRef.current.style.left=mx+'px'; dotRef.current.style.top=my+'px'; }
+    };
+    const over = e=>{
+      const clickable = e.target.closest && e.target.closest('a, button, [role="button"]');
+      document.body.classList.toggle('cursor-hover', !!clickable);
+    };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseover', over);
+    let raf;
+    const loop = ()=>{
+      ringX += (mx-ringX)*0.15; ringY += (my-ringY)*0.15;
+      if(ringRef.current){ ringRef.current.style.left=ringX+'px'; ringRef.current.style.top=ringY+'px'; }
+      raf = requestAnimationFrame(loop);
+    };
+    loop();
+    return ()=>{ window.removeEventListener('mousemove',move); window.removeEventListener('mouseover',over); cancelAnimationFrame(raf); };
+  },[]);
+  return <>
+    <div id="cursor-dot" ref={dotRef}></div>
+    <div id="cursor-ring" ref={ringRef}></div>
+  </>;
+}
+
+/* ---------- navigation ---------- */
+function SideNav(){
+  const [active, setActive] = useState('hero');
+  useEffect(()=>{
+    const obs = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{ if(e.isIntersecting) setActive(e.target.id); });
+    }, {rootMargin:'-45% 0px -45% 0px'});
+    NAV.forEach(n=>{ const el=document.getElementById(n.id); if(el) obs.observe(el); });
+    return ()=>obs.disconnect();
+  },[]);
+  return (
+    <nav id="sidenav" aria-label="Sections">
+      <span></span>
+      <div className="dots">
+        {NAV.map(n=>(
+          <a key={n.id} href={`#${n.id}`} className={`navdot ${active===n.id?'active':''}`} aria-label={n.label}>
+            <span className="navlabel">{n.label}</span>
+          </a>
+        ))}
+      </div>
+      <div className="scrollline"></div>
+    </nav>
+  );
+}
+
+/* ---------- hero ---------- */
+function Hero(){
+  return (
+    <section id="hero">
+      <div className="wrap hero-grid">
+        <div>
+          <span className="eyebrow-label">Data & Systèmes d’Information — Bac +5</span>
+          <h1 className="hero-name">
+            <span className="line"><span className="hero-function" style={{animationDelay:'.05s'}}>Ingénieure en systèmes d’information, étudiante en Master 2 Data Analytics</span></span>
+          </h1>
+        </div>
+        <div>
+          <p className="hero-sub">Étudiante en Master Data à l’Université Paris Cité, je possède une double compétence en analyse des systèmes d’information et conseil IT, ainsi qu’en analyse des données et Business Intelligence. Mon parcours en informatique, complété par des expériences en gestion de projets SI et en développement de solutions décisionnelles, me permet de comprendre les enjeux métier tout en exploitant les données pour accompagner la prise de décision. Je suis actuellement à la recherche d’un stage de 4 à 6 mois à partir du 30 mars 2027.</p>
+          <div className="hero-meta">
+            <a href={`mailto:${EMAIL}`}>{EMAIL}</a>
+            <a href={`tel:${TEL_LIEN}`}>{TEL_AFFICHE}</a>
+            <a href={LINKEDIN} target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <span>Clichy, Île-de-France</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Marquee(){
+  const words = ['DATA ANALYTICS','BUSINESS INTELLIGENCE','SQL','PYTHON','MACHINE LEARNING','STATISTIQUES','POWER BI','VISUALISATION DE DONNÉES','SYSTÈMES D’INFORMATION'];
+  const track = [...words, ...words];
+  return (
+    <div className="marquee-band" aria-hidden="true">
+      <div className="marquee-track">
+        {track.map((w,i)=>(<span key={i}>{w}</span>))}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- profil ---------- */
+function QualiteItem({q, i}){
+  const [ref,inView] = useReveal();
+  return <li ref={ref} className={inView?'in':''} style={{transitionDelay:`${i*70}ms`}}>{q}</li>;
+}
+
+function Photo(){
+  const [ok, setOk] = useState(true);
+  return (
+    <div className="photo-frame">
+      <div className="photo-inner">
+        {ok ? <img src="cv.jpeg" alt="Oumaima Boukhalfa" onError={()=>setOk(false)}/> : <span>OB</span>}
+      </div>
+    </div>
+  );
+}
+
+function Profil(){
+  return (
+    <section id="profil">
+      <div className="wrap">
+        <SecHead num="01" title="Profil"/>
+        <div className="profil-grid">
+          <Reveal className="photo-col">
+            <Photo/>
+            <div>
+              <div className="photo-name">Oumaima Boukhalfa</div>
+              <div className="photo-loc">Clichy, Île-de-France</div>
+            </div>
+            <div className="badges">
+              <span className="dispo"><i></i>Data science & analytics</span>
+              <span className="dispo static"><i></i>Systèmes d’information</span>
+            </div>
+          </Reveal>
+
+          <div className="profil-main">
+            <Reveal delay={1}>
+              <p className="profil-hello">Bonjour, moi c’est <em>Oumaima</em>.</p>
+              <p className="lede">Ce qui me passionne dans la data, c’est sa capacité à transformer des informations brutes en connaissances utiles, qui éclairent les décisions et répondent à des problèmes concrets.</p>
+            </Reveal>
+            <Reveal delay={2}>
+              <p className="profil-text">Ingénieure en systèmes d’information diplômée de l’ESI Alger, je poursuis aujourd’hui un Master Data à l’Université Paris Cité. Cette double formation me permet de comprendre à la fois les systèmes qui produisent la donnée et les méthodes qui permettent d’en tirer de la valeur.</p>
+              <p className="profil-text">J’aime intervenir sur tout le cycle de vie de la donnée : la <strong>préparer</strong> avec des flux ETL sous Pentaho et des bases SQL, la <strong>relier</strong> grâce aux technologies sémantiques RDF et SPARQL, la <strong>modéliser</strong> avec des méthodes statistiques et de machine learning en Python et en R, puis la <strong>restituer</strong> dans des tableaux de bord Power BI clairs et utiles.</p>
+              <p className="profil-text">Pour moi, une bonne analyse ne repose pas uniquement sur la performance d’un modèle. Elle dépend aussi de la qualité des données, de leur protection et d’une vraie compréhension du besoin métier. C’est ce lien entre la technique et les enjeux de l’entreprise que je souhaite construire.</p>
+            </Reveal>
+            <Reveal delay={3}>
+              <h3 className="sub-label">Qualités</h3>
+              <ul className="qualites-list">
+                {QUALITES.map((q,i)=><QualiteItem key={i} q={q} i={i}/>)}
+              </ul>
+            </Reveal>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- expérience ---------- */
+function ExpItem({exp}){
+  const [ref, inView] = useReveal();
+  return (
+    <div ref={ref} className={`tl-item ${inView?'in':''}`}>
+      <div className="tl-dot"></div>
+      <div className="tl-date">{exp.date}</div>
+      <h3 className="tl-role">{exp.role}</h3>
+      <div className="tl-org">{exp.org}</div>
+      <ul>{exp.bullets.map((b,j)=>(<li key={j}>{b}</li>))}</ul>
+    </div>
+  );
+}
+
+function Experience(){
+  const wrapRef = useRef(null);
+  const [fillHeight, setFillHeight] = useState(0);
+  const onScroll = useCallback(()=>{
+    if(!wrapRef.current) return;
+    const rect = wrapRef.current.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const total = rect.height;
+    const visible = Math.min(Math.max(vh*0.75 - rect.top, 0), total);
+    setFillHeight((visible/total)*100);
+  },[]);
+  useEffect(()=>{
+    window.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+    return ()=>window.removeEventListener('scroll', onScroll);
+  },[onScroll]);
+
+  return (
+    <section id="experience">
+      <div className="wrap">
+        <SecHead num="02" title="Expérience"/>
+        <div className="timeline" ref={wrapRef}>
+          <div className="timeline-fill" style={{height:`${fillHeight}%`}}></div>
+          {EXPERIENCES.map((exp,i)=><ExpItem key={i} exp={exp}/>)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- projets ---------- */
+function ProjectCard({p, idx}){
+  const [imgOk, setImgOk] = useState(true);
+  const [ref, inView] = useReveal();
+  const mono = p.title.split(' ').filter(w=>w.length>3).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+  return (
+    <article ref={ref} className={`reveal ${inView?'in':''} proj-card ${p.featured?'featured':''}`}>
+      <div className={`proj-media ${p.fit==='cover'?'fit-cover':''} ${p.light?'light':''}`}>
+        {imgOk
+          ? <img src={p.image} alt={`Capture d’écran : ${p.title}`} loading="lazy" onError={()=>setImgOk(false)}/>
+          : <div className="proj-placeholder"><span className="ph-mono">{mono}</span><span className="ph-note">Capture d’écran à ajouter</span></div>}
+        <span className="proj-badge">{p.badge}</span>
+      </div>
+      <div className="proj-body">
+        <div className="proj-meta">{p.context}, {p.date}</div>
+        <h3>{p.title}</h3>
+        <p className="proj-desc">{p.desc}</p>
+        <div className="proj-tags">{p.tags.map(t=><span key={t}>{t}</span>)}</div>
+        {p.link && (
+          <div className="proj-actions">
+            <a className="ext-link" href={p.link} target="_blank" rel="noopener noreferrer">Voir le projet <ExternalIcon/></a>
+          </div>
+        )}
+      </div>
+    </article>
+  );
+}
+
+function Projets(){
+  return (
+    <section id="projets">
+      <div className="wrap">
+        <SecHead num="03" title="Projets réalisés"/>
+        <Reveal as="p" className="proj-intro">Une sélection de projets menés en entreprise et à l’université.</Reveal>
+        <div className="proj-grid">
+          {PROJETS.map((p,i)=><ProjectCard key={i} p={p} idx={i}/>)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- formation ---------- */
+function FormationCard({f, delay}){
+  const [open, setOpen] = useState(false);
+  const [ref, inView] = useReveal();
+  const delayClass = delay ? `reveal-delay-${delay}` : '';
+  return (
+    <div
+      ref={ref}
+      role="button"
+      tabIndex={0}
+      onClick={()=>setOpen(o=>!o)}
+      onKeyDown={(e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); setOpen(o=>!o); } }}
+      className={`reveal ${delayClass} ${inView?'in':''} formation-card ${open?'is-open':''}`}
+      aria-expanded={open}
+    >
+      <div className="fc-date">{f.date}</div>
+      <h3>{f.title}</h3>
+      <p className="fc-school">{f.school}</p>
+      <div className="fc-details">
+        <div className="fc-details-inner">
+          <p>{f.details}</p>
+          <a className="ext-link" href={f.link} target="_blank" rel="noopener noreferrer" onClick={(e)=>e.stopPropagation()}>
+            Consulter la page officielle de la formation <ExternalIcon/>
+          </a>
+        </div>
+      </div>
+      <div className="fc-cta">
+        <span className="more-ico" aria-hidden="true">+</span>
+        <span className="fc-cta-text">{open ? 'Masquer le détail' : 'Cliquez pour voir le détail'}</span>
+      </div>
+    </div>
+  );
+}
+
+function Formation(){
+  return (
+    <section id="formation">
+      <div className="wrap">
+        <SecHead num="04" title="Formation"/>
+        <div className="formation-grid">
+          {FORMATIONS.map((f,i)=>(<FormationCard key={i} f={f} delay={i+1}/>))}
+        </div>
+        <Reveal delay={2} className="certs">
+          <h3 className="sub-label">Certifications</h3>
+          {CERTS.map((c,i)=>(
+            <div className="cert-row" key={i}><span className="dash">—</span><span>{c}</span></div>
+          ))}
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- compétences ---------- */
+function ToolIcon({name}){
+  const p = {width:20, height:20, viewBox:'0 0 24 24', fill:'none', stroke:'currentColor', strokeWidth:1.6, strokeLinecap:'round', strokeLinejoin:'round', 'aria-hidden':true};
+  switch(name){
+    case 'ml':    return <svg {...p}><circle cx="5" cy="18" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="14" cy="14" r="1.4"/><circle cx="19" cy="6" r="1.4"/><circle cx="16" cy="9" r="1.4"/><path d="M3 21L21 4"/></svg>;
+    case 'chart': return <svg {...p}><path d="M4 20V11M10 20V5M16 20v-7M21 20H3"/></svg>;
+    case 'db':    return <svg {...p}><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>;
+    case 'code':  return <svg {...p}><path d="M8 6l-6 6 6 6M16 6l6 6-6 6"/></svg>;
+    case 'web':   return <svg {...p}><rect x="2" y="4" width="20" height="16" rx="1.5"/><path d="M2 9h20M6 6.5h.01M9 6.5h.01"/></svg>;
+    case 'stack': return <svg {...p}><path d="M12 2l10 5-10 5L2 7l10-5zM2 12l10 5 10-5M2 17l10 5 10-5"/></svg>;
+    default:      return <svg {...p}><path d="M9 11l3 3 8-8M20 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>;
+  }
+}
+
+function Tag({label, i}){
+  const [ref,inView] = useReveal();
+  return <span ref={ref} className={`tag ${inView?'in':''}`} style={{transitionDelay:`${i*50}ms`}}>{label}</span>;
+}
+
+function Competences(){
+  return (
+    <section id="competences">
+      <div className="wrap">
+        <SecHead num="05" title="Compétences"/>
+
+        <Reveal as="h3" className="sub-label">Domaines d’expertise</Reveal>
+        <Reveal className="domain-row">
+          {DOMAINES.map((d,i)=>(<span className="domain-chip" key={i}>{d.t}</span>))}
+        </Reveal>
+
+        <Reveal as="h3" className="sub-label">Outils & technologies</Reveal>
+        <div className="tools-grid">
+          {OUTILS.map((o,i)=>(
+            <Reveal className={`tool-card ${o.highlight?'highlight':''}`} key={i} delay={(i%3)+1}>
+              <div className="tool-head">
+                <span className="tool-ico"><ToolIcon name={o.icon}/></span>
+                <div>
+                  <h5>{o.cat}</h5>
+                  <p>{o.desc}</p>
+                </div>
+              </div>
+              <div className="tag-row">
+                {o.items.map((it,ii)=><Tag key={ii} label={it} i={ii}/>)}
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- langues ---------- */
+function LangItem({l}){
+  const [ref,inView] = useReveal();
+  return (
+    <div ref={ref} className={`langue-item ${inView?'in':''}`} style={{'--w':l.w}}>
+      <div className="lg-name">{l.name}</div>
+      <div className="lg-level">{l.level}</div>
+      <div className="lg-bar"><i></i></div>
+    </div>
+  );
+}
+
+function Langues(){
+  return (
+    <section id="langues">
+      <div className="wrap">
+        <SecHead num="06" title="Langues"/>
+        <div className="langues-grid">
+          {LANGUES.map((l,i)=><LangItem key={i} l={l}/>)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- témoignages ---------- */
+function initials(name){
+  return name.replace(/^Pr\.\s*/,'').split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+}
+
+function Temoignages(){
+  const track = [...TEMOIGNAGES, ...TEMOIGNAGES];
+  return (
+    <section id="temoignages">
+      <div className="wrap">
+        <SecHead num="07" title="Témoignages"/>
+      </div>
+      <div className="test-band">
+        <div className="test-track">
+          {track.map((t,i)=>(
+            <div className="test-card" key={i} aria-hidden={i>=TEMOIGNAGES.length}>
+              <p className="test-quote">{t.quote}</p>
+              <div className="test-who">
+                <div className="test-avatar">{initials(t.name)}</div>
+                <div>
+                  <div className="test-name">{t.name}</div>
+                  <div className="test-role">{t.role}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------- contact ---------- */
+function Contact(){
+  return (
+    <section id="contact">
+      <div className="wrap">
+        <SecHead num="08" title="Contact"/>
+        <Reveal>
+          <h3 className="contact-title">Travaillons<br/>ens<span className="amp">e</span>mble.</h3>
+        </Reveal>
+        <Reveal delay={2} className="contact-links">
+          <a className="contact-link" href={`mailto:${EMAIL}`}>{EMAIL}<span className="under"></span></a>
+          <a className="contact-link" href={`tel:${TEL_LIEN}`}>{TEL_AFFICHE}<span className="under"></span></a>
+          <a className="contact-link" href={LINKEDIN} target="_blank" rel="noopener noreferrer">LinkedIn<span className="under"></span></a>
+        </Reveal>
+        <footer>
+          <span>Oumaima Boukhalfa — Clichy, Île-de-France</span>
+          <span>Portfolio Data Analytics</span>
+        </footer>
+      </div>
+    </section>
+  );
+}
+
+function App(){
+  return (
+    <>
+      <Cursor/>
+      <SideNav/>
+      <div className="content-shift">
+        <Hero/>
+        <Marquee/>
+        <Profil/>
+        <Experience/>
+        <Projets/>
+        <Formation/>
+        <Competences/>
+        <Langues/>
+        <Temoignages/>
+        <Contact/>
+      </div>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
